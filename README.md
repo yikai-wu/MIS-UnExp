@@ -1,7 +1,5 @@
 # MIS-UnExp
 
-## Unrealized Expectations: Comparing AI Methods vs Classical Algorithms for Maximum Independent Set
-
 This repository contains the code and notes used for the paper *Unrealized Expectations: Comparing AI Methods vs Classical Algorithms for Maximum Independent Set*.
 
 At a high level, the repository is organized around three pieces of the study:
