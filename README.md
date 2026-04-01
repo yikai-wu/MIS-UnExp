@@ -1,4 +1,6 @@
-# Unrealized Expectations: Comparing AI Methods vs Classical Algorithms for Maximum Independent Set
+# MIS-UnExp
+
+## Unrealized Expectations: Comparing AI Methods vs Classical Algorithms for Maximum Independent Set
 
 This repository contains the code and notes used for the paper *Unrealized Expectations: Comparing AI Methods vs Classical Algorithms for Maximum Independent Set*.
 
@@ -182,4 +184,3 @@ In that sense:
 - Read `data/random_graph.md` for graph generation details.
 - Read `ltft/evaluate.md` for LTFT evaluation outputs and the degree-ranking metric.
 - Read `serialization/compare_greedy.md` for the serialization analysis logic and when to use each analysis script.
-# MIS-UnExp
