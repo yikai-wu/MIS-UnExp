@@ -18,9 +18,16 @@ MIS-UnExp/
 ├── data/
 │   ├── random_graph.py
 │   └── random_graph.md
+├── greedy/
+│   ├── deg_greedy_result.py
+│   ├── random_greedy_result.py
+│   └── deg_random_greedy_result.md
 ├── ltft/
 │   ├── evaluate.py
 │   └── evaluate.md
+├── local_search/
+│   ├── local_search.py
+│   └── local_search.md
 └── serialization/
     ├── compare_greedy.py
     ├── compare_greedy_segment.py
@@ -83,6 +90,51 @@ Important note:
 
 `ltft/` is intended for use with the upstream [GFlowNet-CombOpt](https://github.com/zdhNarsil/GFlowNet-CombOpt) repository. `evaluate.py` depends on that larger training/evaluation codebase, including modules such as `data`, `util`, `algorithm`, Hydra configs, PyTorch, and DGL, so it should be understood as the evaluation entry point used in the paper rather than a standalone script that can be run in isolation from this repository alone.
 
+### `greedy/`
+
+This folder contains simple greedy baselines that generate repository-compatible `.result` files from `.gpickle` graph instances.
+
+Main files:
+
+- `greedy/deg_greedy_result.py`: runs a dynamic minimum-degree greedy heuristic on each graph in a folder.
+- `greedy/random_greedy_result.py`: runs a random greedy heuristic on each graph in a folder.
+- `greedy/deg_random_greedy_result.md`: documents both baselines, their shared workflow, and their command-line arguments.
+
+What the scripts are for:
+
+- reading `.gpickle` graph files from a folder;
+- constructing one heuristic independent set per graph;
+- writing one `.result` file per graph in the standard binary vector format used elsewhere in the repository;
+- recording the independent-set size for each graph and the average size across the folder;
+- processing multiple graphs in parallel with worker processes.
+
+The main difference between the two baselines is the node-selection rule:
+
+- `deg_greedy_result.py` repeatedly chooses the current minimum-degree vertex in the residual graph;
+- `random_greedy_result.py` repeatedly chooses a uniformly random remaining vertex.
+
+These scripts are useful for generating classical baseline outputs that can be compared against learned methods or passed into downstream analysis scripts.
+
+### `local_search/`
+
+This folder contains a local-improvement script for refining an existing independent set.
+
+Main files:
+
+- `local_search/local_search.py`: applies repeated 2-improvement local-search moves to one graph/solution pair.
+- `local_search/local_search.md`: documents the local-search procedure, inputs, outputs, and interpretation.
+
+What the script is for:
+
+- taking a graph in `.gpickle` format together with an initial `.result` file;
+- searching for repeated 2-improvement moves that replace one selected vertex with two compatible vertices;
+- increasing the solution size whenever such a local move is found;
+- writing the improved solution to an output file.
+
+Important note:
+
+Unlike most other result-producing scripts in this repository, `local_search.py` writes the improved independent set as node IDs, one per line, rather than as a binary `.result` vector. It is therefore best viewed as a standalone refinement utility for inspection and post-processing.
+
 ### `serialization/`
 
 This folder contains the code for the serialization analysis described in the paper.
@@ -131,6 +183,18 @@ These scripts are the most lightweight part of the repository and mainly require
 - `networkx`
 - `numpy`
 
+### For `greedy/`
+
+The greedy baseline scripts mainly require:
+
+- `networkx`
+
+### For `local_search/`
+
+The local-search script mainly requires:
+
+- `networkx`
+
 ### For `data/`
 
 To use `data/random_graph.py` inside the MIS benchmark framework, the relevant environment should include:
@@ -160,25 +224,33 @@ This code is intended to run inside [GFlowNet-CombOpt](https://github.com/zdhNar
 The repository reflects the workflow used in the paper:
 
 1. Generate or prepare random graph instances in `data/` inside the MIS benchmark framework.
-2. Evaluate LTFT / GFlowNet models in `ltft/` inside the GFlowNet-CombOpt codebase and save `.result` outputs.
-3. Run the serialization-style degree-greedy analysis in `serialization/` to compare learned behavior and classical greedy structure.
+2. Optionally generate classical heuristic baselines in `greedy/` as `.result` files.
+3. Evaluate LTFT / GFlowNet models in `ltft/` inside the GFlowNet-CombOpt codebase and save `.result` outputs.
+4. Optionally refine a solution with `local_search/`.
+5. Run the serialization-style degree-greedy analysis in `serialization/` to compare learned behavior and classical greedy structure.
 
 In that sense:
 
 - `data/` supports dataset creation within the MIS benchmark framework;
+- `greedy/` supports simple classical greedy baselines;
 - `ltft/` supports model evaluation and degree-based behavioral logging within GFlowNet-CombOpt;
+- `local_search/` supports post-processing improvement of an existing solution;
 - `serialization/` supports the paper's comparison analysis used to interpret solutions.
 
 ## Practical Notes
 
 - There is no packaged installation setup in this repository.
 - `data/` should be used with the MIS benchmark framework.
+- `greedy/` is self-contained and produces standard `.result` files.
 - `ltft/` should be used with GFlowNet-CombOpt.
+- `local_search/` is self-contained, but its output format differs from the standard `.result` vector format.
 - `serialization/` is documented here, but the paper should be treated as the primary reference for the detailed method.
 - The markdown files in each folder are the best place to start if you want the exact assumptions, CLI arguments, and interpretation details for a given script.
 
 ## Recommended Starting Points
 
 - Read `data/random_graph.md` for graph generation details.
+- Read `greedy/deg_random_greedy_result.md` for the greedy baseline scripts.
 - Read `ltft/evaluate.md` for LTFT evaluation outputs and the degree-ranking metric.
+- Read `local_search/local_search.md` for the 2-improvement local-search procedure.
 - Read `serialization/compare_greedy.md` for the serialization analysis logic and when to use each analysis script.
