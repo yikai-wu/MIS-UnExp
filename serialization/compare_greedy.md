@@ -1,4 +1,4 @@
-# Greedy consistency analysis scripts
+# Serialization analysis scripts
 
 This note documents three related analysis scripts:
 
